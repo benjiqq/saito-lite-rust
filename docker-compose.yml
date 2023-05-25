@@ -1,0 +1,14 @@
+version: "3"
+services:
+  app:
+    build:
+      context: .
+    container_name: saitorustlite
+    ports:
+      - "3000:3000"
+      - "12101:12101"
+    volumes:
+      - ".:/usr/src/app"
+      - "node_modules:/usr/src/app/node_modules"
+volumes:
+  node_modules:
