@@ -60,10 +60,15 @@ class StorageCore extends Storage {
       }
     }
     try {
-      const db = await sqlite.open(this.data_dir + "/" + dbname + ".sq3");
+      const db = await sqlite.open({
+        filename: `${this.data_dir}/${dbname}.sq3`,
+        driver: sqlite.Database,
+      });
 
       this.dbname.push(dbname);
       this.db.push(db);
+
+      console.log("created database: " + dbname);
 
       return this.db[this.db.length - 1];
     } catch (err) {
