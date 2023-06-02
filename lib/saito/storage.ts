@@ -357,6 +357,10 @@ class Storage {
     return null;
   }
 
+  async scanBlocksFromDisk(maxblocks = 0): Promise<Block> {
+    return null;
+  }
+
   returnPath() {
     return null;
   }

@@ -102,7 +102,8 @@ class StorageCore extends Storage {
     return null;
   }
 
-  async loadBlocksFromDisk(maxblocks = 0) {
+  async scanBlocksFromDisk(maxblocks = 0) {
+    console.log("scanBlocksFromDisk")
     this.loading_active = true;
 
     //
@@ -110,6 +111,7 @@ class StorageCore extends Storage {
     // if two files have the same creation date
     //
     const dir = `${this.data_dir}/${this.dest}/`;
+    console.log("load from " + dir);
 
     //
     // if this takes a long time, our server can
@@ -118,6 +120,8 @@ class StorageCore extends Storage {
     // will be set at 1
     //
     const files = fs.readdirSync(dir);
+
+    console.log("files.length " + files.length);
 
     //
     // "empty" file only
@@ -137,6 +141,71 @@ class StorageCore extends Storage {
 
     for (let i = 0; i < files.length; i++) {
       try {
+        console.log("load " + i);
+        const fileID = files[i];
+        if (fileID !== "empty" && fileID.includes(".sai")) {
+          const blk = await this.loadBlockByFilename(dir + fileID);
+          //TODO just show the block
+          //console.log(blk.asReadableString());
+          console.log(blk.asInfoReadableString());
+
+          if (blk == null) {
+            console.log("block is null: " + fileID);
+            return null;
+          }
+          if (!blk.is_valid) {
+            console.log("We have saved an invalid block: " + fileID);
+            return null;
+          }
+
+          // await this.app.blockchain.addBlockToBlockchain(blk, true);
+          // console.log("Loaded block " + i + " of " + files.length);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+
+  async loadBlocksFromDisk(maxblocks = 0) {
+    this.loading_active = true;
+
+    //
+    // sort files by creation date, and then name
+    // if two files have the same creation date
+    //
+    const dir = `${this.data_dir}/${this.dest}/`;
+    console.log("load from " + dir);
+
+    //
+    // if this takes a long time, our server can
+    // just refuse to sync the initial connection
+    // as when it starts to connect, currently_reindexing
+    // will be set at 1
+    //
+    const files = fs.readdirSync(dir);
+
+    console.log("files.length " + files.length);
+
+    //
+    // "empty" file only
+    //
+    if (files.length == 1) {
+      this.loading_active = false;
+      return;
+    }
+
+    files.sort(function (a, b) {
+      // const compres = fs.statSync(dir + a).mtime.getTime() - fs.statSync(dir + b).mtime.getTime();
+      // if (compres == 0) {
+      return parseInt(a.split("-")[0]) - parseInt(b.split("-")[0]);
+      // }
+      // return compres;
+    });
+
+    for (let i = 0; i < files.length; i++) {
+      try {
+        console.log("load " + i);
         const fileID = files[i];
         if (fileID !== "empty" && fileID.includes(".sai")) {
           const blk = await this.loadBlockByFilename(dir + fileID);

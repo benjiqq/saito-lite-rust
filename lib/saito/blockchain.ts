@@ -863,6 +863,38 @@ class Blockchain {
     }
   }
 
+  async initMin() {
+    //
+    // load blockchain from options if exists
+    //
+
+    if (this.app.options.blockchain) {
+      let obj = this.app.options.blockchain;
+      for (let key in obj) {
+        if (typeof obj[key] !== "undefined") {
+          this.blockchain[key] = obj[key];
+        }
+      }
+      this.blockchain.last_callback_block_id = this.blockchain.last_block_id;
+    }
+
+    //console.log("BLOCKCHAIN: " + JSON.stringify(this.blockchain));
+
+    //
+    // prevent mempool from producing blocks while we load
+    //
+    this.app.mempool.bundling_active = true;
+    this.indexing_active = false;
+
+    //
+    // load blocks from disk
+    //
+    console.log("!!! scanBlocksFromDisk");
+    await this.app.storage.scanBlocksFromDisk();
+
+   
+  }
+
   async initialize() {
     //
     // load blockchain from options if exists
@@ -889,6 +921,7 @@ class Blockchain {
     //
     // load blocks from disk
     //
+    console.log("!!! loadBlocksFromDisk");
     await this.app.storage.loadBlocksFromDisk();
 
     //

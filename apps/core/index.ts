@@ -85,7 +85,57 @@ class Saito {
     this.handshake = new Handshake(this);
   }
 
+  async initMin() {
+    console.log(".....initialize min......");
+    try {
+      await this.storage.initialize();
+
+      //
+      // import hashing library here because of complications with both
+      // performant blake3 library and less performant blake3-js that neeeds
+      // to run in the browser but cannot be deployed via WASM.
+      //
+      await hash_loader(this);
+
+      await this.wallet.initialize();
+      this.mempool.initialize();
+      //this.miner.initialize();
+      this.keychain.initialize();
+
+      // this.modules.mods = this.modules.mods_list.map((mod_path) => {
+      //   // eslint-disable-next-line @typescript-eslint/no-var-requires
+      //   const Module = require(`./../../mods/${mod_path}`);
+      //   const x = new Module(this);
+      //   x.dirname = path.dirname(mod_path);
+      //   return x;
+      // });
+
+      //
+      // browser sets active module
+      //
+      await this.browser.initialize(this);
+      //await this.modules.initialize();
+
+      //
+      // blockchain after modules create dbs
+      //
+      //await this.blockchain.initialize();
+      await this.blockchain.initMin();
+      //this.network.initialize();
+
+      // if (this.server) {
+      //   this.server.initialize();
+      // }
+    } catch (err) {
+      console.error(
+        "Error occured initializing your Saito install. The most likely cause of this is a module that is throwing an error on initialization. You can debug this by removing modules from your config file to test which ones are causing the problem and restarting."
+      );
+      console.error(err);
+    }
+  }
+
   async init() {
+    console.log(".....initialize all......");
     try {
       await this.storage.initialize();
 

@@ -70,7 +70,14 @@ class Analytics extends ModTemplate {
       console.log(" ?tx " + app.blockchain.blocks);
       let latest_block_id = app.blockring.returnLatestBlockId();
       console.log(" ?latest_block_id " + latest_block_id);
-      
+      console.log(" ?? options " + app.options);
+      console.log(" ?? " + app.options.server);
+      console.log(" ?? blocks " + app.blocks);
+      console.log(" ?? app.miner " + app.miner);
+      console.log(" ?? app.mining_active " + app.miner.mining_active);
+
+      let mining_active = app.miner.mining_active
+
       // console.log(" ? " + this.app.mempool);
       // console.log(" ? " + this.app.wallet);
       // console.log(" ? " + this.app.mempool.transactions);
@@ -84,7 +91,7 @@ class Analytics extends ModTemplate {
       // console.log("tx " + tx);
       // console.log("bal " + bal);
 
-      let data = {content: "Analytics", publickey: pub, balance: bal, latest_block_id: latest_block_id};
+      let data = {content: "Analytics", publickey: pub, balance: bal, latest_block_id: latest_block_id, mining_active: mining_active};
 
       ejs.renderFile(path.join(__dirname, 'stub.ejs'), data, {}, function(err, str){
           if(err) {

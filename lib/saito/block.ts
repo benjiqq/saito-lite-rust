@@ -217,6 +217,7 @@ class Block {
     // console.debug("block deserialized");
   }
 
+
   //
   // if the block is not at the proper type, try to downgrade it by removing elements
   // that take up significant amounts of data / memory. if this is possible return
@@ -1124,6 +1125,28 @@ class Block {
     this.lc = lc;
   }
 
+  asInfoReadableString() {
+    let html = "";
+    html += `
+ Block ${this.block.id} - ${this.returnHash()}
+   timestamp:   ${this.block.timestamp}
+   tx length:   ${this.transactions.length}
+   prevblock:   ${this.block.previous_block_hash}
+   merkle:      ${this.block.merkle}
+   num tx:  ${this.transactions.length}
+   burnfee:     ${this.block.burnfee.toString()}
+   difficulty:  ${this.block.difficulty}
+   
+`;
+
+  // for (let i = 0; i < this.transactions.length; i++) {
+  //   html += this.transactions[i].asReadableString();
+  //   html += "\n";
+  // }
+    
+    return html;
+  }
+
   asReadableString() {
     let html = "";
     html += `
@@ -1485,7 +1508,12 @@ console.log("TX CAUSING ERROR: " + JSON.stringify(this.transactions[this.callbac
     this.block.signature = this.app.crypto.signBuffer(this.serializeForSignature(), privatekey);
   }
 
+
   async validate() {
+    console.log(">>> validate");
+    //console.log(this.asReadableString());
+    console.log(this.asInfoReadableString());
+    
     this.generateMetadata();
 
     // TODO - lite-client validation
@@ -1716,6 +1744,14 @@ console.log("TX CAUSING ERROR: " + JSON.stringify(this.transactions[this.callbac
         BigInt(cv.ft_idx),
         this.returnHash()
       );
+
+      
+      console.log(">>> cv.fee_transaction: " + cv.fee_transaction);
+      console.log(">>> size: " + cv.fee_transaction.size);
+      console.log(">>> size: " + cv.fee_transaction.fees_total);
+      console.log(">>> asReadableString: " + cv.fee_transaction.asReadableString());
+
+      //cv.fee_transaction.deserialize(app)
 
       const hash1 = this.app.crypto.hash(fee_transaction.serializeForSignature(this.app));
       const hash2 = this.app.crypto.hash(cv.fee_transaction.serializeForSignature(this.app));
